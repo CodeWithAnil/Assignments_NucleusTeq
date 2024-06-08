@@ -1,0 +1,40 @@
+1614. Maximum Nesting Depth of the Parentheses
+
+class Solution(object):
+    def maxDepth(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        ans = 0
+        count = 0
+        for ch in s:
+            if ch=='(':
+                count+=1
+                ans = max(count,ans)
+            elif ch == ')':
+                count-=1    
+        
+        return ans
+
+
+14. Longest Common Prefix
+
+class Solution(object):
+    def longestCommonPrefix(self, strs):
+        """
+        :type strs: List[str]
+        :rtype: str
+        """
+        
+        if len(strs) == 0:
+            return ""
+
+        base = strs[0]
+
+        for i in range(len(base)):
+            for words in strs[1:]:
+                if i == len(words) or words[i] != base[i]:
+                    return base[0:i]
+
+        return base      

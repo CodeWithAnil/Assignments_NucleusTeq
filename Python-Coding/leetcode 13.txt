@@ -1,0 +1,28 @@
+13. Roman to Integer
+
+class Solution(object):
+    def romanToInt(self, str):
+        """
+        :type s: str
+        :rtype: int
+        """
+        map = dict()
+        map['I'] = 1
+        map['V'] = 5
+        map['X'] = 10
+        map['L'] = 50
+        map['C'] = 100
+        map['D'] = 500
+        map['M'] = 1000
+
+        ans = 0
+        ans += map[str[len(str)-1]]
+
+        for i in range(len(str)-2,-1,-1):
+            if map[str[i]] >= map[str[i+1]]:
+                ans += map[str[i]]
+            else:
+                ans -= map[str[i]]
+
+        return ans            
+        
