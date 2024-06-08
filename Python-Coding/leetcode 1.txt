@@ -1,0 +1,17 @@
+// Two Sum
+
+
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        dic = dict()
+        i = 0
+        ans = []
+        for i in range(0,len(nums)):
+            if target-nums[i] in dic:
+                ans.append(dic.get(target-nums[i]))
+                ans.append(i)
+                break
+
+            dic[nums[i]] = i
+
+        return ans       
