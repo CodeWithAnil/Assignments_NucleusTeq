@@ -9,7 +9,7 @@ body {
 }
 
 .container {
-    background-color: #fff;
+    background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -55,7 +55,53 @@ h1 {
     background-color: #0056b3;
 }
 
-/*  home page */
+/* Media Queries for Responsiveness */
 
+/* Small devices (landscape phones, less than 768px) */
+@media (max-width: 767px) {
+    .container {
+        /* width: 90%; */
+        padding: 15px;
+    }
 
- 
+    .form input,
+    .form select,
+    .form button {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .form button {
+        font-size: 14px;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .container {
+        width: 400px;
+        padding: 20px;
+    }
+
+    .form input,
+    .form select,
+    .form button {
+        font-size: 15px;
+        padding: 10px;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .container {
+        /* width: 90%; */
+        padding: 25px;
+    }
+
+    .form input,
+    .form select,
+    .form button {
+        font-size: 16px;
+        padding: 12px;
+    }
+}

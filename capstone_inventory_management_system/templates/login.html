@@ -4,7 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-     
+    <style>
+    </style>
 </head>
 <body>
   {% extends "home.html" %}
@@ -15,7 +16,7 @@
           {% if messages %}
             <ul class="flashes">
             {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
+            <div class="flash {{ category }}">{{ message }}</div>
             {% endfor %}
             </ul>
           {% endif %}
@@ -32,5 +33,20 @@
         </form>
     </div>
     {% endblock %}
+
+    <script>
+      // Auto-hide flash message after 5 seconds
+      document.addEventListener("DOMContentLoaded", function() {
+          const flashMessage = document.querySelector(".flash-message");
+          if (flashMessage) {
+              setTimeout(() => {
+                  flashMessage.style.display = 'none';
+              }, 5000);
+          }
+      });
+  </script>
 </body>
 </html>
+
+
+

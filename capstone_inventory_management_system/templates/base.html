@@ -7,51 +7,104 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   
     <style>
-        
-         
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         .flash-message {
             padding: 10px;
             background-color: #f0ad4e;
             color: white;
             text-align: center;
             position: fixed;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            z-index: 1000;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar {
+            background-color: #333;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+            padding: 14px 20px;
+            position: fixed;
             top: 0;
             width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             z-index: 1000;
         }
-    
-        .navbar {
-    background-color: #333;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 14px 20px;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 
-.navbar a {
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-}
+        .navbar a {
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            padding: 8px;
+        }
 
-.navbar a i {
-    margin-right: 8px;
-}
+        .navbar a i {
+            margin-right: 8px;
+        }
 
-.navbar a:hover {
-    background-color: #575757;
-    border-radius: 4px;
-    padding: 10px;
-}
+        .navbar a:hover {
+            background-color: #575757;
+            border-radius: 4px;
+        }
 
+        .content-container {
+            /* margin-top: 70px;  */
+            padding: 0px;
+            width: 90%;
+            max-width: 1200px;
+            /* margin-left: auto; */
+            /* margin-right: auto; */
+        }
 
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+            }
+
+            .navbar a {
+                width: 100%;
+                padding: 12px;
+                text-align: center;
+            }
+
+            .flash-message {
+                width: 90%;
+                left: 5%;
+                transform: none;
+            }
+
+            .content-container {
+                margin-top: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar a {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .flash-message {
+                top: 220px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -63,7 +116,6 @@
         <a href="{{ url_for('auth_bp.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
     
-     
     <!-- Flash message section -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -77,18 +129,17 @@
 
     <div class="content-container">
         {% block content %}
-        
         {% endblock %}
     </div>
     
     <script>
-        // Auto-hide flash message after 5 seconds
+        // Auto-hide flash message after 3 seconds
         document.addEventListener("DOMContentLoaded", function() {
             const flashMessage = document.querySelector('.flash-message');
             if (flashMessage) {
                 setTimeout(() => {
                     flashMessage.style.display = 'none';
-                }, 5000);
+                }, 3000);
             }
         });
     </script>

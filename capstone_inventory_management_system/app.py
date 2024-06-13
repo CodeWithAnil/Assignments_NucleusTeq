@@ -13,20 +13,12 @@ def create_app(config_name='default'):
     app = Flask(__name__)
     
     # setUp general logigng 
-    general_log_handler = RotatingFileHandler('logs/general.log')
+    general_log_handler = RotatingFileHandler('logs/general.log', maxBytes=10000, backupCount=3)
     general_log_handler.setLevel(logging.INFO)
     general_formatter = logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
     )
     general_log_handler.setFormatter(general_formatter)
-
-    # # Set up error logging
-    # error_log_handler = RotatingFileHandler('logs/error.log', maxBytes=10000, backupCount=3)
-    # error_log_handler.setLevel(logging.ERROR)
-    # error_formatter = logging.Formatter(
-    #     '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-    # )
-    # error_log_handler.setFormatter(error_formatter)
 
     # Add handlers to the app logger
     app.logger.addHandler(general_log_handler)

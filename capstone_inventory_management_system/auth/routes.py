@@ -22,7 +22,7 @@ def register():
         last_name = data.get('last-name')
         dob = data.get('dob')
         phone_no = data.get('phone')
-        role = data.get('role')
+        role = "employee"
         email = data.get('email')
         password = data.get('password')
 
@@ -47,6 +47,7 @@ def register():
                 last_name=last_name,
                 dob=dob,
                 phone_no=phone_no,
+                role = role,
                 email=email,
                 password=password
             )
@@ -66,16 +67,26 @@ def login():
         email = data.get('email')
         password = data.get('password')
 
-        if not email or not password:
-            flash("Email and password are required", "error")
-            msg = "Email and password are required"
+        if not email:
+            flash("Email required", "error")
+            msg = "Email required"
             current_app.logger.warning('Login failed: %s', msg)
 
+        if not password:
+            flash("password required", "error")
+            msg = "password required"
+            current_app.logger.warning('Login failed: %s', msg)    
+
         user = User.query.filter_by(email=email).first()
-        if not user or not user.verify_password(password):
-            flash("Invalid email or password", "error")
-            msg = "Invalid email or password"
-            current_app.logger.warning('Login failed: Invalid email or password for email')
+        if not user:
+            flash("Invalid email  ", "error")
+            msg = "Invalid email"
+            current_app.logger.warning('Login failed: Invalid email')
+        elif not user.verify_password(password):
+            flash("Invalid password", "error")
+            msg = "Invalid password"
+            current_app.logger.warning('Login failed: Invalid password')
+
         else:
             session['loggedin'] = True
             session['id'] = user.id
@@ -122,6 +133,10 @@ def assigned_item():
             flash("User not found", "error")
             current_app.logger.warning('User not found: %s', user_id)
             return redirect(url_for('auth_bp.login'))
+        
+    flash("You are not logged in", 'error')
+    current_app.logger.warning('Unauthorized access attempt to profile')
+    return redirect(url_for('auth_bp.login'))
 
 # Employee profile route
 @auth_bp.route('/profile')
@@ -188,7 +203,9 @@ def admin_profile():
 @auth_bp.route('/admin_dashboard/all_users', methods=['GET'])
 def all_users():
     if 'loggedin' in session and session['email'] == 'admin@nucleusteq.com':
-        users = User.query.all()
+        
+        # users = User.query.all()
+        users = User.query.filter(User.email != 'admin@nucleusteq.com').all()
         # get assigend item
         for user in users:
             user.items = Item.query.filter_by(assigned_to_id=user.id).all()
@@ -294,6 +311,7 @@ def delete_user():
         else:
             current_app.logger.warning('Delete user failed: User not found ')
             return jsonify({'success': False, 'error': 'User not found'}), 404
+        
     flash("You are not logged in", 'error')
     current_app.logger.warning('Unauthorized access attempt to delete user')
     return redirect(url_for('auth_bp.login'))
@@ -304,9 +322,10 @@ def delete_user():
 def all_items():
     if 'loggedin' in session and session['email'] == 'admin@nucleusteq.com':
         items = Item.query.all()
-        employees = User.query.all()
+        employees = User.query.filter(User.email != 'admin@nucleusteq.com').all()
         current_app.logger.info('All items accessed')
         return render_template('items.html', items=items, employees=employees)
+    
     flash("You are not logged in", 'error')
     current_app.logger.warning('Unauthorized access attempt to all items')
     return redirect(url_for('auth_bp.login'))
@@ -337,25 +356,24 @@ def add_item():
         # Check if serial_number and bill_number are unique
         if Item.query.filter_by(serial_number=serial_number).first():
             flash('Serial number already exists', 'error')
-            return redirect(url_for('auth_bp.all_items'))
         
-        if Item.query.filter_by(bill_number=bill_number).first():
+        elif Item.query.filter_by(bill_number=bill_number).first():
             flash('Bill number already exists', 'error')
-            return redirect(url_for('auth_bp.all_items'))
-        
-        new_item = Item(
-            name=name,
-            serial_number=serial_number,
-            bill_number=bill_number,
-            date_of_purchase=date_of_purchase,
-            warranty=warranty,
-            assigned_to_id=assigned_to_id
-        )
-        db.session.add(new_item)
-        db.session.commit()
-        flash('Item Added Successfully', 'success')
-        current_app.logger.info('Item added successfully: %s', name)
+        else:
+            new_item = Item(
+                name=name,
+                serial_number=serial_number,
+                bill_number=bill_number,
+                date_of_purchase=date_of_purchase,
+                warranty=warranty,
+                assigned_to_id=assigned_to_id
+            )
+            db.session.add(new_item)
+            db.session.commit()
+            flash('Item Added Successfully', 'success')
+            current_app.logger.info('Item added successfully: %s', name)
         return redirect(url_for('auth_bp.all_items'))
+    
     flash("You are not logged in", 'error')
     current_app.logger.warning('Unauthorized access attempt to add item')
     return redirect(url_for('auth_bp.login'))
@@ -363,7 +381,7 @@ def add_item():
 # Route to assign an item to user
 @auth_bp.route('/admin_dashboard/assign_item', methods=['POST'])
 def assign_item():
-    if 'loggedin' in session:
+    if 'loggedin' in session and session['email'] == 'admin@nucleusteq.com':
         data = request.form
         item_id = data.get('item_id')
         assigned_to_id = data.get('assigned_to')
@@ -391,18 +409,20 @@ def assign_item():
     current_app.logger.warning('Unauthorized access attempt to assign item')
     return redirect(url_for('auth_bp.login'))
 
-@auth_bp.route('/admin_dashboard/unassign_item/<int:item_id>', methods=['POST', 'GET'])
-def unassign_item(item_id):
+@auth_bp.route('/unassign_item', methods=['POST'])
+def unassign_item():
     if 'loggedin' in session:
+        data = request.get_json()
+        item_id = data.get('id')
         item = Item.query.get(item_id)
         if item:
             item.assigned_to_id = None
             db.session.commit()
             flash('Item Unassigned successfully', 'success')
-            current_app.logger.info('Item unassigned successfully: %s', item_id)
+            return jsonify({'success': True})
         else:
             flash('Item Not Found', 'error')
-        return redirect(url_for('auth_bp.all_items'))
+            return jsonify({'success': False, 'error': 'Item not found'}), 404
     flash("You are not logged in", 'error')
     current_app.logger.warning('Unauthorized access attempt to unassign item')
     return redirect(url_for('auth_bp.login'))
@@ -419,10 +439,11 @@ def delete_item():
             db.session.commit()
             flash('Item Deleted Successfully', 'success')
             current_app.logger.info('Item deleted successfully: %s', item.name)
+            return jsonify({'success': True})
         else:
             flash('Item not found', 'error')
             current_app.logger.warning('Delete item failed: Item not found %s', item_id)
-        return redirect(url_for('auth_bp.all_items'))
+            return jsonify({'success': False, 'error': 'Item not found'}), 404
     flash("You are not logged in", 'error')
     current_app.logger.warning('Unauthorized access attempt to delete item')
     return redirect(url_for('auth_bp.login'))
